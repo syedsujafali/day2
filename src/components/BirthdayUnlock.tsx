@@ -45,8 +45,13 @@ const FloatingHearts = () => {
 };
 
 // Typewriter Effect Component
-const TypewriterText = ({ text }: { text: string }) => {
+const TypewriterText = ({ text, onComplete }: { text: string; onComplete?: () => void }) => {
     const [displayedText, setDisplayedText] = useState("");
+    const onCompleteRef = useRef(onComplete);
+
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     useEffect(() => {
         setDisplayedText("");
@@ -54,10 +59,13 @@ const TypewriterText = ({ text }: { text: string }) => {
         const interval = setInterval(() => {
             setDisplayedText((prev) => prev + text.charAt(i));
             i++;
-            if (i >= text.length) clearInterval(interval);
+            if (i >= text.length) {
+                clearInterval(interval);
+                if (onCompleteRef.current) onCompleteRef.current();
+            }
         }, 50); // Typing speed
         return () => clearInterval(interval);
-    }, [text]);
+    }, [text]); // Only depend on text
 
     return <span>{displayedText}</span>;
 };
@@ -99,6 +107,7 @@ export default function BirthdayUnlock() {
     const [selectedCard, setSelectedCard] = useState<number | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [isMessageComplete, setIsMessageComplete] = useState(false);
     const [lockedMessage, setLockedMessage] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -136,7 +145,7 @@ export default function BirthdayUnlock() {
             id: 2,
             title: "Birthday",
             unlockDateTitle: "Feb 28",
-            isUnlocked: checkUnlocked(28),
+            isUnlocked: true, // checkUnlocked(28), // Temporarily unlocked for testing
             message: "🎉 HAPPY BIRTHDAY, MY EVERYTHING! 🎉 Today, the whole world is yours! 🌍👑 To the person who holds my heart completely: may this year bring you all the beautiful things your soul desires. You are my greatest adventure, my safest place, and my true love. 🌹 From the bottom of my heart, thank you for being exactly who you are. Let's make today utterly unforgettable—because you deserve absolutely nothing but the very best! 🥂🎁 I love you forever and always! 💌💋",
             icon: <Gift className="w-8 h-8 text-amber-500 fill-amber-500/50 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />,
             mediaUrl: "/love.gif"
@@ -148,6 +157,11 @@ export default function BirthdayUnlock() {
         audioRef.current = new Audio('/birthday.mp3');
         audioRef.current.loop = true;
     }, []);
+
+    useEffect(() => {
+        // Reset message completion when card changes
+        setIsMessageComplete(false);
+    }, [selectedCard]);
 
     const handleInteract = () => {
         if (audioRef.current && !isPlaying) {
@@ -303,11 +317,29 @@ export default function BirthdayUnlock() {
                                                 </div>
                                             </div>
 
-                                            <div className="p-4 bg-white/50 rounded-2xl border border-white/60">
+                                            <div className="p-4 bg-white/50 rounded-2xl border border-white/60 mb-4">
                                                 <p className="text-gray-800 font-medium text-base sm:text-lg leading-relaxed italic text-center px-1 sm:px-2">
-                                                    "<TypewriterText text={card.message} />"
+                                                    "<TypewriterText text={card.message} onComplete={() => setIsMessageComplete(true)} />"
                                                 </p>
                                             </div>
+
+                                            {card.id === 2 && isMessageComplete && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="flex justify-center"
+                                                >
+                                                    <a
+                                                        href="https://final-ten-coral.vercel.app/"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-full shadow-[0_10px_20px_rgba(236,72,153,0.3)] hover:shadow-[0_15px_30px_rgba(236,72,153,0.4)] transition-all flex items-center gap-2 group"
+                                                    >
+                                                        a surprise for you
+                                                        <Sparkles className="w-5 h-5 group-hover:animate-spin" />
+                                                    </a>
+                                                </motion.div>
+                                            )}
                                         </motion.div>
                                     )}
                                 </div>
