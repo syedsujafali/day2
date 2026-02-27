@@ -145,7 +145,7 @@ export default function BirthdayUnlock() {
             id: 2,
             title: "Birthday",
             unlockDateTitle: "Feb 28",
-            isUnlocked: true, // checkUnlocked(28), // Temporarily unlocked for testing
+            isUnlocked: checkUnlocked(28),
             message: "🎉 HAPPY BIRTHDAY, MY EVERYTHING! 🎉 Today, the whole world is yours! 🌍👑 To the person who holds my heart completely: may this year bring you all the beautiful things your soul desires. You are my greatest adventure, my safest place, and my true love. 🌹 From the bottom of my heart, thank you for being exactly who you are. Let's make today utterly unforgettable—because you deserve absolutely nothing but the very best! 🥂🎁 I love you forever and always! 💌💋",
             icon: <Gift className="w-8 h-8 text-amber-500 fill-amber-500/50 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />,
             mediaUrl: "/love.gif"
